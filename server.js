@@ -1,28 +1,27 @@
-import express from "express";
 import http from "http";
-import { createProxyServer } from "http-proxy";
-import { WebSocketServer } from "ws";
+import httpProxy from "http-proxy";
 
-const app = express();
-const server = http.createServer(app);
+const TARGET = "ws://nitro.blumhost.net:2805";
 
-const proxy = createProxyServer({
-  target: "ws://nitro.blumhost.net:2805",
+const proxy = httpProxy.createProxyServer({
+  target: TARGET,
   ws: true,
   changeOrigin: true,
-  secure: false,
+  headers: {
+    origin: "http://nitro.blumhost.net"
+  }
 });
 
-app.get("/", (req, res) => {
-  res.send("WebSocket Proxy is running.");
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WebSocket proxy is running\n");
 });
 
-// Handle WebSocket upgrades
 server.on("upgrade", (req, socket, head) => {
   proxy.ws(req, socket, head);
 });
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Proxy listening on port ${PORT}`);
 });
