@@ -5,7 +5,11 @@ const TARGET = "ws://nitro.blumhost.net:2805";
 
 const proxy = httpProxy.createProxyServer({
   target: TARGET,
-  ws: true
+  ws: true,
+  changeOrigin: true,
+  headers: {
+    origin: "http://nitro.blumhost.net"
+  }
 });
 
 const server = http.createServer((req, res) => {
